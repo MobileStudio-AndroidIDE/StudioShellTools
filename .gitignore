@@ -1,0 +1,3 @@
+# Build artifacts — tarballs live in GitHub Releases, not in git
+build/
+**/android-arm64/*.tar.gz
