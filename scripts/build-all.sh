@@ -1,13 +1,13 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # ============================================================================
 # StudioShellTools build-all.sh
 # Cross-compiles 23 CLI tools for Android ARM64 (aarch64, bionic, PIE).
 #
-# Uses the Android ARM64 NDK:
-#   ANDROID_NDK_ROOT=<root>  ??path to an extracted arm64 NDK
-#                              (toolchains/llvm/bin/clang-24 layout, NOT linux-x86_64)
-#   If unset, downloads android-r27d-arm64.tar.gz from the MobileStudio
-#   "NDK-arm64" GitHub Release automatically.
+# Requires a LINUX-host NDK (the ARM64 device NDK cannot run on x86_64 WSL):
+#   ANDROID_NDK_ROOT=<root>  path to an extracted Linux-host NDK
+#                              (toolchains/llvm/prebuilt/linux-x86_64/bin/clang)
+#   If unset, downloads android-ndk-r27d-linux.zip from dl.google.com
+#   automatically (~600 MB, extracted once under build/).
 #
 # Output: <repo>/<tool>/android-arm64/<tool>-android-arm64.tar.gz
 # Each tarball contains bin/ (PIE executables) and lib/ (bundled .so if needed).
@@ -22,32 +22,48 @@ mkdir -p "$SRC" "$STAGE"
 
 API="${API:-29}"
 TARGET="aarch64-linux-android"
-NDK_RELEASE_URL="https://github.com/MobileStudio-AndroidIDE/MobileStudio_AndroidIDE/releases/download/NDK-arm64/android-r27d-arm64.tar.gz"
+NDK_ZIP_URL="https://dl.google.com/android/repository/android-ndk-r27d-linux.zip"
+
+extract_zip() {
+    local file="$1"
+    if command -v unzip >/dev/null 2>&1; then
+        unzip -q -o "$file"
+    else
+        python3 -c "
+import zipfile
+zipfile.ZipFile('$file').extractall('.')
+" || { echo "!! cannot extract zip (install unzip or python3)"; exit 1; }
+    fi
+}
 
 # ---------------------------------------------------------------------------
 # NDK setup
 # ---------------------------------------------------------------------------
 ensure_ndk() {
-    if [ -n "${ANDROID_NDK_ROOT:-}" ] && [ -f "$ANDROID_NDK_ROOT/toolchains/llvm/bin/clang-24" ]; then
-        NDK="$ANDROID_NDK_ROOT"
-        echo "Using NDK: $NDK"
-        return
+    if [ -n "${ANDROID_NDK_ROOT:-}" ]; then
+        for cand in "$ANDROID_NDK_ROOT/toolchains/llvm" "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64"; do
+            if [ -x "$cand/bin/clang" ]; then
+                NDK="$ANDROID_NDK_ROOT"
+                NDK_LLVM_HOME="$cand"
+                echo "Using NDK: $NDK"
+                return
+            fi
+        done
+        echo "!! ANDROID_NDK_ROOT set but no Linux-host clang found under it (Windows NDK clang.exe does not work in WSL)"
+        exit 1
     fi
-    NDK="$WORK/android-ndk-r27d-arm64"
-    if [ ! -f "$NDK/toolchains/llvm/bin/clang-24" ]; then
-        echo "Downloading Android ARM64 NDK (r27d)..."
+    NDK="$WORK/android-ndk-r27d-linux"
+    if [ ! -x "$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" ]; then
+        echo "Downloading Linux x86_64 NDK (r27d) from Google..."
         mkdir -p "$WORK"
-        curl -fL -o "$WORK/ndk.tar.gz" "$NDK_RELEASE_URL"
-        tar -xzf "$WORK/ndk.tar.gz" -C "$WORK"
-        rm -f "$WORK/ndk.tar.gz"
-        # handle a possible nested root dir
-        if [ ! -f "$NDK/toolchains/llvm/bin/clang-24" ]; then
-            NESTED="$(find "$WORK" -maxdepth 2 -type f -path '*toolchains/llvm/bin/clang-24' | head -1)"
-            NESTED="${NESTED%/toolchains/llvm/bin/clang-24}"
-            if [ -n "$NESTED" ]; then mv "$NESTED" "$NDK"; fi
-        fi
+        curl -fL -o "$WORK/ndk.zip" "$NDK_ZIP_URL"
+        ( cd "$WORK" && extract_zip ndk.zip )
+        rm -f "$WORK/ndk.zip"
     fi
-    [ -f "$NDK/toolchains/llvm/bin/clang-24" ] || { echo "NDK clang-24 not found"; exit 1; }
+    if [ ! -x "$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" ]; then
+        echo "!! NDK clang not found after download"; exit 1
+    fi
+    NDK_LLVM_HOME="$NDK/toolchains/llvm/prebuilt/linux-x86_64"
     echo "Using NDK: $NDK"
 }
 
@@ -55,7 +71,7 @@ ensure_ndk() {
 # Cross toolchain env
 # ---------------------------------------------------------------------------
 setup_toolchain() {
-    export LLVM_HOME="$NDK/toolchains/llvm"
+    export LLVM_HOME="$NDK_LLVM_HOME"
     export SYSROOT="$LLVM_HOME/sysroot"
     export TOOL_PREFIX="$LLVM_HOME/bin"
     export CC="$TOOL_PREFIX/clang --target=$TARGET$API --sysroot=$SYSROOT"
