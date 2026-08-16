@@ -20,6 +20,16 @@ tools = [
     "patch","sort","uniq","head","tail","cut","xargs","which","file",
     "readelf","objdump","nm",
 ]
+# Versions pinned in build-all.sh. Override per tool with <TOOL>_VERSION env.
+versions = {
+    "git": "2.45.2", "curl": "8.7.1", "wget": "1.24.5",
+    "ssh": "9.7p1", "scp": "9.7p1", "tar": "1.35", "unzip": "6.0",
+    "grep": "3.11", "sed": "4.9", "find": "4.9.0", "xargs": "4.9.0",
+    "diff": "3.10", "patch": "2.7.6",
+    "sort": "9.5", "uniq": "9.5", "head": "9.5", "tail": "9.5", "cut": "9.5",
+    "which": "2.21", "file": "5.45",
+    "readelf": "LLVM 18", "objdump": "LLVM 18", "nm": "LLVM 18",
+}
 base = f"https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/{tag}"
 manifest = {}
 checksum_lines = []
@@ -31,7 +41,7 @@ for tool in tools:
     size = os.path.getsize(tarball)
     sha = hashlib.sha256(open(tarball, "rb").read()).hexdigest()
     manifest[tool] = {
-        "version": os.environ.get(f"{tool.upper()}_VERSION", "?"),
+        "version": os.environ.get(f"{tool.upper()}_VERSION", versions.get(tool, "?")),
         "size": size,
         "url": f"{base}/{tool}-android-arm64.tar.gz",
         "sha256": sha,

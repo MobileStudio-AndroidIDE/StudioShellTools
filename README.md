@@ -17,6 +17,7 @@ StudioShellTools/
 │   └── upload.sh          # push tarballs to GitHub Release "tools-v1" + commit manifest
 ├── git/android-arm64/git-android-arm64.tar.gz    (generated, uploaded to Release — NOT committed)
 ├── curl/android-arm64/curl-android-arm64.tar.gz  (generated)
+├── build/                 # NDK + sources + staging (generated, gitignored)
 └── ... (23 tools)
 ```
 
@@ -26,38 +27,52 @@ The repository itself only tracks metadata (manifest + checksums + scripts).
 
 ## Tools
 
-| tool     | source                |
-|----------|-----------------------|
-| git      | git 2.45.2 (+openssl 3.3.2, zlib 1.3.1, libcurl) |
-| curl     | curl 8.7.1            |
-| wget     | wget 1.24.5           |
-| ssh/scp  | OpenSSH portable 9.7p1 |
-| tar      | GNU tar 1.35          |
-| unzip    | Info-ZIP 6.0          |
-| grep     | GNU grep 3.11         |
-| sed      | GNU sed 4.9           |
-| find/xargs | GNU findutils 4.9.0 |
-| diff     | GNU diffutils 3.10    |
-| patch    | GNU patch 2.7.6       |
-| sort/uniq/head/tail/cut | GNU coreutils 9.5 |
-| which    | GNU which 2.21        |
-| file     | file 5.45 (libmagic)  |
-| readelf/objdump/nm | LLVM 24 from the ARM64 NDK (llvm-readelf/llvm-objdump/llvm-nm) |
+| tool     | version            | source                |
+|----------|--------------------|-----------------------|
+| git      | 2.45.2             | git (+openssl 3.3.2, zlib 1.3.1, libcurl) |
+| curl     | 8.7.1              | curl                  |
+| wget     | 1.24.5             | wget                  |
+| ssh/scp  | 9.7p1              | OpenSSH portable      |
+| tar      | 1.35               | GNU tar               |
+| unzip    | 6.0                | Info-ZIP              |
+| grep     | 3.11               | GNU grep              |
+| sed      | 4.9                | GNU sed               |
+| find/xargs | 4.9.0            | GNU findutils         |
+| diff     | 3.10               | GNU diffutils         |
+| patch    | 2.7.6              | GNU patch             |
+| sort/uniq/head/tail/cut | 9.5 | GNU coreutils     |
+| which    | 2.21               | GNU which             |
+| file     | 5.45               | file (libmagic)       |
+| readelf/objdump/nm | LLVM 18 | NDK r27d (llvm-readelf/llvm-objdump/llvm-nm) |
 
-## Build (on Linux/WSL, with the ARM64 NDK)
+These versions are recorded in `manifest.json` — the app's shell shows them in
+`tools list` / `tools available` / `tools install <tool>` (override per tool with `<TOOL>_VERSION` env).
+
+## Quick start (on Linux/WSL)
 
 ```bash
-# 1. Get the ARM64 NDK (r27d) — from the NDK-arm64 GitHub Release:
-#    https://github.com/MobileStudio-AndroidIDE/MobileStudio_AndroidIDE/releases/tag/NDK-arm64
-#    or set ANDROID_NDK_ROOT=/path/to/android-ndk-r27d-arm64
+git clone https://github.com/MobileStudio-AndroidIDE/StudioShellTools.git
+cd StudioShellTools
 
-./scripts/build-all.sh          # builds all 23 tools into <tool>/android-arm64/*.tar.gz
-./scripts/verify.sh             # arch + exec bit + checksum + size checks
-./scripts/upload.sh             # creates/updates Release tools-v1 and commits manifest
+./scripts/build-all.sh     # downloads a Linux-host NDK (~600 MB, once) and builds all 23 tools
+./scripts/upload.sh        # verify → regenerate manifest → upload to Release "tools-v1" → commit+push
 ```
 
-`build-all.sh` downloads pinned source tarballs into `build/src/` and cross-compiles
-with the ARM64 NDK clang (`--target=aarch64-linux-android29 --sysroot=$LLVM_HOME/sysroot`).
+Then in the MobileStudio app shell: `tools update` / `tools list` and run any missing command
+(e.g. `git --version`) — it will be offered for lazy download.
+
+## Build notes
+
+* **NDK**: `build-all.sh` needs a **Linux-host** NDK (clang runs natively in WSL).
+  It auto-downloads `android-ndk-r27d-linux.zip` from `dl.google.com` (~600 MB, extracted once into `build/android-ndk-r27d`).
+  Set `ANDROID_NDK_ROOT=/path/to/ndk` to use an existing one.
+  The **Windows** Android Studio NDK (clang.exe) does not work in WSL.
+  The **ARM64 device** NDK (`NDK-arm64` GitHub Release on MobileStudio) is a separate thing —
+  it runs on the phone for on-device compilation and is downloaded by the app itself.
+* Output: `<tool>/android-arm64/<tool>-android-arm64.tar.gz`, each containing `bin/` (PIE executables)
+  and `lib/` (bundled `.so` if needed).
+* `build-all.sh` downloads pinned source tarballs into `build/src/` and cross-compiles with
+  `--target=aarch64-linux-android29 --sysroot=$LLVM_HOME/sysroot`.
 
 ## Verification checklist (before upload)
 
