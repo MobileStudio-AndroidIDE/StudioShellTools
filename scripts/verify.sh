@@ -40,9 +40,10 @@ check_arch() {
         fi
     done < <(find "$TMP/$tool" -path '*/bin/*' -type f -o -path '*/bin/*' -type l)
 
-    # any x86 binary anywhere?
-    if grep -rlq -E "x86-64|x86,|Intel 80386" "$TMP/$tool" 2>/dev/null; then
-        echo "!! $tool: x86 binary detected"; bad=1
+    # any x86 ELF binary anywhere? (raw string grep would false-positive on
+    # LLVM tools, which reference x86 targets internally)
+    if find "$TMP/$tool" -type f -print0 | xargs -0 file -b 2>/dev/null | grep -qE "ELF .*(x86-64|Intel 80386)"; then
+        echo "!! $tool: x86 ELF binary detected"; bad=1
     fi
 
     # exec bits
