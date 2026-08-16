@@ -52,13 +52,19 @@ ensure_ndk() {
         echo "!! ANDROID_NDK_ROOT set but no Linux-host clang found under it (Windows NDK clang.exe does not work in WSL)"
         exit 1
     fi
-    NDK="$WORK/android-ndk-r27d-linux"
+    NDK="$WORK/android-ndk-r27d"
     if [ ! -x "$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" ]; then
         echo "Downloading Linux x86_64 NDK (r27d) from Google..."
         mkdir -p "$WORK"
         curl -fL -o "$WORK/ndk.zip" "$NDK_ZIP_URL"
         ( cd "$WORK" && extract_zip ndk.zip )
         rm -f "$WORK/ndk.zip"
+        if [ ! -x "$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" ]; then
+            # zip extracts into its own top-level dir (e.g. android-ndk-r27d/) — locate it
+            NESTED="$(find "$WORK" -maxdepth 3 -type f -path '*prebuilt/linux-x86_64/bin/clang' | head -1)"
+            NESTED="${NESTED%/toolchains/llvm/prebuilt/linux-x86_64/bin/clang}"
+            if [ -n "$NESTED" ] && [ "$NESTED" != "$NDK" ]; then mv "$NESTED" "$NDK"; fi
+        fi
     fi
     if [ ! -x "$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang" ]; then
         echo "!! NDK clang not found after download"; exit 1
