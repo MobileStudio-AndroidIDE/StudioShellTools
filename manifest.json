@@ -1,69 +1,56 @@
 {
-    "version":  1,
-    "tools":  {
-                  "curl":  {
-                               "version":  "8.7.1",
-                               "binary":  "curl",
-                               "sha256":  "706f30c78f74d4eb7f32dfcf17f1986a09ebad15a7c944fe15206a1b9b7b986c",
-                               "arch":  "aarch64",
-                               "url":  "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/curl-android-arm64.tar.gz",
-                               "size":  1512795
-                           },
-                  "grep":  {
-                               "version":  "3.11",
-                               "binary":  "grep",
-                               "sha256":  "e08a81614b7670b2bc6803264591a29d4f79e6d41ee66a2e3eac4c3e0d25dc60",
-                               "arch":  "aarch64",
-                               "url":  "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/grep-android-arm64.tar.gz",
-                               "size":  131564
-                           },
-                  "ninja":  {
-                                "version":  "1.12.1",
-                                "binary":  "ninja",
-                                "sha256":  "05c2746bfc1fde70773ee31161a6c56b3311ffe6566d9ece2a08a8e30cf8005c",
-                                "arch":  "aarch64",
-                                "url":  "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/ninja-android-arm64.tar.gz",
-                                "size":  347742
-                            },
-                  "tar":  {
-                              "version":  "1.35",
-                              "binary":  "tar",
-                              "sha256":  "ceaf3d28f50c65ad1bcae7d49f51129a203f5800c6426f81f0d3c39984ef7348",
-                              "arch":  "aarch64",
-                              "url":  "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/tar-android-arm64.tar.gz",
-                              "size":  260508
-                          },
-                  "openssl":  {
-                                  "version":  "1.1.1w",
-                                  "binary":  "openssl",
-                                  "sha256":  "46e1c8df0fb6ef4a57c3f8d4830b7be380c001cc45aa68390e89d0db16a35f5c",
-                                  "arch":  "aarch64",
-                                  "url":  "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/openssl-android-arm64.tar.gz",
-                                  "size":  1424887
-                              },
-                  "git":  {
-                              "version":  "2.45.2",
-                              "binary":  "git",
-                              "sha256":  "a658fb8a856af2720e2252fa18e993bec76676e2e91e25e1c53e0b4075586552",
-                              "arch":  "aarch64",
-                              "url":  "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/git-android-arm64.tar.gz",
-                              "size":  2100369
-                          },
-                  "make":  {
-                               "version":  "4.4.1",
-                               "binary":  "make",
-                               "sha256":  "2c45f62d6d8fbf5a092af6f0c9c99376e634d246a64996f5f5980c52771c0c6b",
-                               "arch":  "aarch64",
-                               "url":  "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/make-android-arm64.tar.gz",
-                               "size":  131423
-                           },
-                  "wget":  {
-                               "version":  "1.24.5",
-                               "binary":  "wget",
-                               "sha256":  "7da38f3dc42982390b9dcefc97d4c7111196202d0a484b6826c37356863befa9",
-                               "arch":  "aarch64",
-                               "url":  "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/wget-android-arm64.tar.gz",
-                               "size":  1433867
-                           }
-              }
+  "curl": {
+    "version": "8.7.1",
+    "size": 1512795,
+    "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/curl-android-arm64.tar.gz",
+    "sha256": "706f30c78f74d4eb7f32dfcf17f1986a09ebad15a7c944fe15206a1b9b7b986c"
+  },
+  "grep": {
+    "version": "3.11",
+    "size": 131564,
+    "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/grep-android-arm64.tar.gz",
+    "sha256": "e08a81614b7670b2bc6803264591a29d4f79e6d41ee66a2e3eac4c3e0d25dc60"
+  },
+  "ninja": {
+    "version": "1.12.1",
+    "size": 347742,
+    "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/ninja-android-arm64.tar.gz",
+    "sha256": "05c2746bfc1fde70773ee31161a6c56b3311ffe6566d9ece2a08a8e30cf8005c"
+  },
+  "tar": {
+    "version": "1.35",
+    "size": 260508,
+    "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/tar-android-arm64.tar.gz",
+    "sha256": "ceaf3d28f50c65ad1bcae7d49f51129a203f5800c6426f81f0d3c39984ef7348"
+  },
+  "openssl": {
+    "version": "1.1.1w",
+    "size": 1424887,
+    "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/openssl-android-arm64.tar.gz",
+    "sha256": "46e1c8df0fb6ef4a57c3f8d4830b7be380c001cc45aa68390e89d0db16a35f5c"
+  },
+  "git": {
+    "version": "2.45.2",
+    "size": 2100369,
+    "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/git-android-arm64.tar.gz",
+    "sha256": "a658fb8a856af2720e2252fa18e993bec76676e2e91e25e1c53e0b4075586552"
+  },
+  "make": {
+    "version": "4.4.1",
+    "size": 131423,
+    "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/make-android-arm64.tar.gz",
+    "sha256": "2c45f62d6d8fbf5a092af6f0c9c99376e634d246a64996f5f5980c52771c0c6b"
+  },
+  "wget": {
+    "version": "1.24.5",
+    "size": 1433867,
+    "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/wget-android-arm64.tar.gz",
+    "sha256": "7da38f3dc42982390b9dcefc97d4c7111196202d0a484b6826c37356863befa9"
+  },
+  "studioshell": {
+    "version": "0.0.0820",
+    "size": 8841,
+    "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/studioshell-android-arm64.tar.gz",
+    "sha256": "166dc07c9a2b275a8ca888d4ce56d53763bbc9fd8b8aaaaf3a0829669f1a414d"
+  }
 }
