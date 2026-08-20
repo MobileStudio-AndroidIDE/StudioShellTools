@@ -49,8 +49,8 @@
   },
   "studioshell": {
     "version": "0.0.0820",
-    "size": 8841,
+    "size": 31688,
     "url": "https://github.com/MobileStudio-AndroidIDE/StudioShellTools/releases/download/tools-v1/studioshell-android-arm64.tar.gz",
-    "sha256": "166dc07c9a2b275a8ca888d4ce56d53763bbc9fd8b8aaaaf3a0829669f1a414d"
+    "sha256": "8f6ea9880d49abbc6af0b98f94289f40abfbd85bc78ab97046de6cea807c797e"
   }
 }
