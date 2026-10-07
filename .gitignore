@@ -1,3 +1,4 @@
-# Build artifacts — tarballs live in GitHub Releases, not in git
+# Build artifacts — binaries and tarballs live in GitHub Releases, not in git
 build/
-**/android-arm64/*.tar.gz
+**/android-arm64/
+manifest.json

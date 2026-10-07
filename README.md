@@ -8,27 +8,31 @@ Each tool is a **real Android ARM64 binary** (bionic, PIE, run via `/system/bin/
 
 ```
 StudioShellTools/
-├── manifest.json          # tool metadata: version / size / url / sha256  (managed in git)
-├── checksums.sha256       # SHA-256 of every release tarball             (managed in git)
+├── checksums.sha256       # SHA-256 of every release tarball        (managed in git)
 ├── scripts/
 │   ├── build-all.sh       # cross-compile all tools for Android ARM64
-│   ├── make-manifest.sh   # regenerate manifest.json + checksums.sha256 from built tarballs
-│   ├── verify.sh          # pre-upload gate: arch / exec bits / checksum / size / no x86
-│   └── upload.sh          # push tarballs to GitHub Release "tools-v1" + commit manifest
+│   ├── make-checksums.sh  # regenerate checksums.sha256 from built tarballs
+│   ├── verify.sh          # pre-upload gate: arch / exec bits / checksum / no x86
+│   └── upload.sh          # checksums → verify → push tarballs to GitHub Release
 ├── git/android-arm64/git-android-arm64.tar.gz    (generated, uploaded to Release — NOT committed)
 ├── curl/android-arm64/curl-android-arm64.tar.gz  (generated)
 ├── build/                 # NDK + sources + staging (generated, gitignored)
-└── ... (23 tools)
+└── ... (per-tool build output)
 ```
 
-Large binaries are **not** committed to the repository (see `.gitignore`).
-They are uploaded as GitHub Release assets (`tools-v1`) and the manifest points to those URLs.
-The repository itself only tracks metadata (manifest + checksums + scripts).
+Binaries are **not** committed to the repository (see `.gitignore`).
+Every `<tool>-android-arm64.tar.gz` is uploaded as a GitHub Release asset
+(`tools-v1`), and the repository only tracks metadata (checksums + scripts).
+
+There is **no manifest.json**: the MobileStudio app derives the whole tool
+list straight from the release assets — tarball names provide the tools,
+`checksums.sha256` provides their SHA-256, and the release tag doubles as
+the version shown in `tools list` (a new release tag = an update prompt).
 
 ## Tools
 
-| tool     | version            | source                |
-|----------|--------------------|-----------------------|
+| tool     | version (pinned in build-all.sh) | source |
+|----------|--------------------|-----------------|
 | git      | 2.45.2             | git (+openssl 3.3.2, zlib 1.3.1, libcurl) |
 | curl     | 8.7.1              | curl                  |
 | wget     | 1.24.5             | wget                  |
@@ -45,21 +49,18 @@ The repository itself only tracks metadata (manifest + checksums + scripts).
 | file     | 5.45               | file (libmagic)       |
 | readelf/objdump/nm | LLVM 18 | NDK r27d (llvm-readelf/llvm-objdump/llvm-nm) |
 
-These versions are recorded in `manifest.json` — the app's shell shows them in
-`tools list` / `tools available` / `tools install <tool>` (override per tool with `<TOOL>_VERSION` env).
-
 ## Quick start (on Linux/WSL)
 
 ```bash
 git clone https://github.com/MobileStudio-AndroidIDE/StudioShellTools.git
 cd StudioShellTools
 
-./scripts/build-all.sh     # downloads a Linux-host NDK (~600 MB, once) and builds all 23 tools
-./scripts/upload.sh        # verify → regenerate manifest → upload to Release "tools-v1" → commit+push
+./scripts/build-all.sh     # downloads a Linux-host NDK (~600 MB, once) and builds all tools
+./scripts/upload.sh        # checksums → verify → upload to Release "tools-v1" → commit+push
 ```
 
-Then in the MobileStudio app shell: `tools update` / `tools list` and run any missing command
-(e.g. `git --version`) — it will be offered for lazy download.
+Then in the MobileStudio app shell: `tools refresh` / `tools list` and install any missing
+command with `tools install <name>`.
 
 ## Build notes
 
@@ -70,7 +71,7 @@ Then in the MobileStudio app shell: `tools update` / `tools list` and run any mi
   The **ARM64 device** NDK (`NDK-arm64` GitHub Release on MobileStudio) is a separate thing —
   it runs on the phone for on-device compilation and is downloaded by the app itself.
 * Output: `<tool>/android-arm64/<tool>-android-arm64.tar.gz`, each containing `bin/` (PIE executables)
-  and `lib/` (bundled `.so` if needed).
+  and `lib/` (bundled `.so` if needed). These paths are gitignored.
 * `build-all.sh` downloads pinned source tarballs into `build/src/` and cross-compiles with
   `--target=aarch64-linux-android29 --sysroot=$LLVM_HOME/sysroot`.
 
@@ -80,8 +81,7 @@ Then in the MobileStudio app shell: `tools update` / `tools list` and run any mi
 * `readelf -h` shows `Machine: AArch64`
 * exec bits are preserved in the tarball
 * all required shared libraries are bundled in `lib/`
-* SHA-256 in `checksums.sha256` matches the tarball
-* manifest `size` matches the tarball size
+* SHA-256 in `checksums.sha256` matches the tarball (`scripts/verify.sh`)
 * binaries run on a real Android device:
   `git --version`, `curl --version`, `wget --version`, `ssh -V`, `tar --version`, `grep --version`, `find --version`
 * no x86 / x86_64 binaries mixed in
